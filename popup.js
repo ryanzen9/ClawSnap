@@ -2,6 +2,7 @@ const botTokenInput = document.getElementById('botToken');
 const chatIdInput = document.getElementById('chatId');
 const noteInput = document.getElementById('note');
 const clawMentionInput = document.getElementById('clawMention');
+const targetBotInput = document.getElementById('targetBot');
 const templatePresetEl = document.getElementById('templatePreset');
 const analysisTemplateEl = document.getElementById('analysisTemplate');
 const saveBtn = document.getElementById('saveBtn');
@@ -96,7 +97,8 @@ async function loadConfig() {
     'chatId',
     'analysisTemplate',
     'templatePreset',
-    'clawMention'
+    'clawMention',
+    'targetBot'
   ]);
 
   botTokenInput.value = cfg.botToken || '';
@@ -104,6 +106,7 @@ async function loadConfig() {
 
   const preset = cfg.templatePreset || 'summary';
   clawMentionInput.value = cfg.clawMention || '';
+  targetBotInput.value = cfg.targetBot || '';
   templatePresetEl.value = preset;
 
   if (cfg.analysisTemplate) {
@@ -119,9 +122,14 @@ async function saveConfig() {
   const templatePreset = templatePresetEl.value;
   const analysisTemplate = analysisTemplateEl.value.trim();
   const clawMention = clawMentionInput.value.trim();
+  const targetBot = targetBotInput.value.trim();
 
   if (!botToken || !chatId) {
     setStatus('请先填写 Bot Token 和 Chat ID', true);
+    return;
+  }
+  if (!targetBot) {
+    setStatus('请填写目标机器人用户名（如 @claw_bot）', true);
     return;
   }
   if (!analysisTemplate) {
@@ -129,7 +137,7 @@ async function saveConfig() {
     return;
   }
 
-  await chrome.storage.local.set({ botToken, chatId, analysisTemplate, templatePreset, clawMention });
+  await chrome.storage.local.set({ botToken, chatId, analysisTemplate, templatePreset, clawMention, targetBot });
   setStatus('配置已保存');
 }
 
@@ -213,14 +221,16 @@ async function captureAndSend() {
     sendBtn.disabled = true;
     setStatus('正在捕获页面...');
 
-    const { botToken, chatId, analysisTemplate, clawMention } = await chrome.storage.local.get([
+    const { botToken, chatId, analysisTemplate, clawMention, targetBot } = await chrome.storage.local.get([
       'botToken',
       'chatId',
       'analysisTemplate',
-      'clawMention'
+      'clawMention',
+      'targetBot'
     ]);
 
     if (!botToken || !chatId) throw new Error('请先保存 Bot Token 和 Chat ID');
+    if (!targetBot) throw new Error('请先填写并保存目标机器人用户名');
     if (!analysisTemplate) throw new Error('请先配置并保存分析模板');
 
     const tab = await getActiveTab();
@@ -248,8 +258,10 @@ async function captureAndSend() {
     setStatus('正在发送截图...');
     await telegramSendPhoto({ botToken, chatId, imageBlob, caption: photoCaption });
 
+    const botMention = (targetBot || '').trim();
     const mentionPrefix = (clawMention || '').trim();
-    const finalText = mentionPrefix ? `${mentionPrefix}\n🧠 分析请求\n\n${analysisText}` : `🧠 分析请求\n\n${analysisText}`;
+    const head = [botMention, mentionPrefix].filter(Boolean).join(' ');
+    const finalText = head ? `${head}\n🧠 分析请求\n\n${analysisText}` : `🧠 分析请求\n\n${analysisText}`;
 
     setStatus('正在发送分析指令...');
     await telegramSendMessage({ botToken, chatId, text: finalText });

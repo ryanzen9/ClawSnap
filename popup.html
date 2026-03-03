@@ -104,10 +104,16 @@
         <div class="field">
           <label for="chatId">目标 Chat ID（Claw 在的群/频道）</label>
           <input id="chatId" type="text" placeholder="例如 -100xxxx" />
-          <div class="hint">建议使用群组/频道 ID，bot 无法直接私聊另一个 bot。</div>
+          <div class="hint">必须填目标机器人所在群/频道 ID（通常 -100 开头）。</div>
+        </div>
+
+        <div class="field">
+          <label for="targetBot">目标机器人用户名（必填）</label>
+          <input id="targetBot" type="text" placeholder="例如 @claw_bot" />
+          <div class="hint">发送时会自动 @该机器人，请确保它和中转 bot 在同一群/频道。</div>
         </div>
         <div class="field">
-          <label for="clawMention">机器人唤起前缀（可选）</label>
+          <label for="clawMention">额外唤起前缀（可选）</label>
           <input id="clawMention" type="text" placeholder="例如 @your_claw_bot" />
         </div>
         <div class="field">
