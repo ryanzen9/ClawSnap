@@ -60,7 +60,8 @@ const PRESET_TEMPLATES = {
 };
 
 function setStatus(msg, isError = false) {
-  statusEl.style.color = isError ? '#b00020' : '#0a7a2f';
+  statusEl.classList.remove('ok', 'error');
+  statusEl.classList.add(isError ? 'error' : 'ok');
   statusEl.textContent = msg;
 }
 
