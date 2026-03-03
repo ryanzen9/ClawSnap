@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClawSnap</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; margin: 12px; width: 340px; }
+    h3 { margin: 0 0 10px; font-size: 16px; }
+    .row { margin-bottom: 8px; }
+    label { display:block; font-size: 12px; color: #444; margin-bottom: 4px; }
+    input, textarea, select, button { width: 100%; box-sizing: border-box; }
+    input, textarea, select { padding: 6px; font-size: 12px; }
+    textarea { resize: vertical; min-height: 52px; }
+    button { padding: 8px; border: 0; border-radius: 6px; background:#0b57d0; color:white; font-weight:600; cursor:pointer; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    #status { margin-top: 8px; font-size: 12px; white-space: pre-wrap; }
+    .hint { font-size: 11px; color:#666; margin-top:4px; line-height: 1.4; }
+    .tokens { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:#f6f8fa; padding:6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h3>ClawSnap · 发送当前页面到 Telegram</h3>
+
+  <div class="row">
+    <label for="botToken">中转 Bot Token</label>
+    <input id="botToken" type="password" placeholder="123456:ABC..." />
+    <div class="hint">这是负责“投递消息”的中转机器人 token。</div>
+  </div>
+
+  <div class="row">
+    <label for="chatId">目标 Chat ID（Claw 机器人所在会话）</label>
+    <input id="chatId" type="text" placeholder="例如 -100xxxx（群）或私聊 chat id" />
+    <div class="hint">建议填 Claw 机器人所在群/频道，而不是你自己的私聊。</div>
+  </div>
+
+  <div class="row">
+    <label for="clawMention">机器人唤起前缀（可选）</label>
+    <input id="clawMention" type="text" placeholder="例如 @your_claw_bot" />
+    <div class="hint">填了后会自动加在分析请求前，方便点名另一个机器人处理。</div>
+  </div>
+
+  <div class="row">
+    <label for="note">备注（可选）</label>
+    <textarea id="note" placeholder="补充说明，告诉对方机器人你想分析什么"></textarea>
+  </div>
+
+  <div class="row">
+    <label for="templatePreset">分析模板预设</label>
+    <select id="templatePreset">
+      <option value="summary">总结重点</option>
+      <option value="todo">提取待办</option>
+      <option value="risk">风险评估</option>
+      <option value="custom">自定义</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label for="analysisTemplate">分析指令模板（可配置）</label>
+    <textarea id="analysisTemplate"></textarea>
+    <div class="hint">支持变量：</div>
+    <div class="hint tokens">{{timestamp}} {{domain}} {{url}} {{title}} {{note}} {{snippet}}</div>
+  </div>
+
+  <div class="row">
+    <button id="saveBtn">保存配置</button>
+  </div>
+
+  <div class="row">
+    <button id="sendBtn">捕获并发送</button>
+    <div class="hint">会直接发送到“目标 Chat ID”，不是先发你再转发。</div>
+  </div>
+
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
